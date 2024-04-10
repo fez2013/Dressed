@@ -1,10 +1,3 @@
-/* I WANT TO DISPLAY ITEMS FROM EACH CATEGORY ON THIS WARDROBE SCREEN.
-  I CURRENTLY HAVE CREATED THE HEADERS AND FOUND 3 IMAGES OF TOPS TO USE AS TESTS.
-  I WANT TO EVENTUALLY MAKE IT WHERE IT WILL DISPLAY THE USER'S ACTUAL WARDROBE,
-  BUT FOR NOW I JUST WANTED IT TO TEST IT. UNFORTUNATELY, THE HEADERS ALL EXIST
-  BUT THE IMAGES ARE NOT DISPLAYING. NEED TO WORK ON THAT
-*/
-
 import { YStack, H2, Separator, Theme } from 'tamagui';
 import React from 'react';
 import {
@@ -16,18 +9,6 @@ import {
   StatusBar,
   Image,
 } from 'react-native';
-
-/*export default function TabWardrobeScreen() {
-  return (
-    <Theme name="light">
-      <YStack flex={1} alignItems="center" justifyContent="center">
-        <H2>Wardrobe</H2>
-        <Separator />
-        <EditScreenInfo path="app/(tabs)/index.tsx" />
-      </YStack>
-    </Theme>
-  );
-}*/
 
 interface Item {
   id: string;
@@ -49,34 +30,58 @@ export default function TabWardrobeScreen() {
     {
       id: 'pants',
       title: 'Pants',
+      images: [
+        { src: require('./WardrobeTestImages/pants1.png'), tag: 'Casual' },
+        { src: require('./WardrobeTestImages/pants2.png'), tag: 'Formal' },
+        { src: require('./WardrobeTestImages/pants3.png'), tag: 'Sport' },
+      ],
     },
     {
       id: 'skirts',
       title: 'Skirts',
+      images: [
+        { src: require('./WardrobeTestImages/skirt1.png'), tag: 'Casual' },
+        { src: require('./WardrobeTestImages/skirt2.png'), tag: 'Formal' },
+        { src: require('./WardrobeTestImages/skirt3.png'), tag: 'Evening' },
+      ],
     },
     {
       id: 'dresses',
       title: 'Dresses',
+      images: [
+        { src: require('./WardrobeTestImages/dress1.png'), tag: 'Casual' },
+        { src: require('./WardrobeTestImages/dress2.png'), tag: 'Formal' },
+        { src: require('./WardrobeTestImages/dress3.png'), tag: 'Evening' },
+      ],
     },
     {
       id: 'accessories',
       title: 'Accessories',
+      images: [
+        { src: require('./WardrobeTestImages/accessory1.png'), tag: 'Casual' },
+        { src: require('./WardrobeTestImages/accessory2.png'), tag: 'Formal' },
+        { src: require('./WardrobeTestImages/accessory3.png'), tag: 'Sport' },
+      ],
     },
     {
       id: 'jewelry',
       title: 'Jewelry',
+      images: [
+        { src: require('./WardrobeTestImages/jewelry1.png'), tag: 'Casual' },
+        { src: require('./WardrobeTestImages/jewelry2.png'), tag: 'Formal' },
+        { src: require('./WardrobeTestImages/jewelry3.png'), tag: 'Elegant' },
+      ],
     }
   ];
 
   const renderItem = ({ item }: { item: Item }) => (
     <View style={styles.item}>
       <Text style={styles.title}>{item.title}</Text>
-      {item.images && item.images.map((image, index) => (
-        <View key={index} style={styles.imageContainer}>
-          <Image source={image.src} style={styles.image} />
-          <Text style={styles.tag}>{image.tag}</Text>
-        </View>
-      ))}
+      <View style={styles.imageContainer}>
+        {item.images && item.images.map((image, index) => (
+          <Image key={index} source={image.src} style={styles.image} />
+        ))}
+      </View>
     </View>
   );
 
@@ -96,28 +101,33 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: StatusBar.currentHeight || 0,
   },
+  title: {
+    fontSize: 16, // Adjusted font size to make titles smaller
+    alignSelf: 'flex-start',
+  },
+  image: {
+    flex: 1, // Keeps the image flexible
+    width: null, // Ensures width is dynamically adjusted
+    height: '100%', // Increase height to fill the container
+    resizeMode: 'contain', // Ensures the image fits within the view without stretching
+    marginHorizontal: 5, // Keeps a small horizontal margin
+    marginVertical: 2, // Reduces top and bottom margins to increase image size
+  },
   item: {
-    backgroundColor: '#FF5C5C', // A pinkish-red color
+    backgroundColor: '#FF5C5C',
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
-    borderRadius: 10, // Gives a boxed-in look
-  },
-  title: {
-    fontSize: 18, // Smaller font size
-    alignSelf: 'flex-start', // Left-aligned
+    borderRadius: 10,
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    height: 200, // Keeps the container's height fixed
   },
   imageContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flex: 1, // Ensures the container takes up the full height of its parent
+    flexDirection: 'row', // Keeps images side by side
+    justifyContent: 'space-around', // Distributes space evenly around the images
+    alignItems: 'center', // Centers images vertically
     marginTop: 10,
-  },
-  image: {
-    width: 50, // Adjust size as needed
-    height: 50, // Adjust size as needed
-    marginRight: 10,
-  },
-  tag: {
-    fontSize: 14,
   },
 });
