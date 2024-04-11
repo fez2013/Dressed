@@ -8,12 +8,20 @@ import {
   Text,
   StatusBar,
   Image,
+  Dimensions,
+  TouchableOpacity
 } from 'react-native';
 
 interface Item {
   id: string;
   title: string;
   images?: { src: any; tag: string }[];
+}
+
+interface ImageItem {
+  src: any; // Consider using a more specific type for src, like ImageSourcePropType from 'react-native'
+  tag?: string;
+  id: string; // Add the id property to ImageItem
 }
 
 export default function TabWardrobeScreen() {
@@ -25,6 +33,7 @@ export default function TabWardrobeScreen() {
         { src: require('./WardrobeTestImages/top1.png'), tag: 'Casual' },
         { src: require('./WardrobeTestImages/top2.png'), tag: 'Formal' },
         { src: require('./WardrobeTestImages/top3.png'), tag: 'Formal' },
+        //{ src: require('./WardrobeTestImages/top4.png'), tag: 'Casual' },
       ],
     },
     {
@@ -74,16 +83,84 @@ export default function TabWardrobeScreen() {
     }
   ];
 
-  const renderItem = ({ item }: { item: Item }) => (
-    <View style={styles.item}>
-      <Text style={styles.title}>{item.title}</Text>
-      <View style={styles.imageContainer}>
-        {item.images && item.images.map((image, index) => (
-          <Image key={index} source={image.src} style={styles.image} />
-        ))}
-      </View>
-    </View>
+  const renderImageItem = ({ item }: { item: ImageItem }) => (
+    <TouchableOpacity onPress={() => generateOutfit(item)}>
+      <Image source={item.src} style={styles.image} />
+    </TouchableOpacity>
   );
+
+  const generateOutfit = (selectedItem: ImageItem) => {
+    const category = getCategory(selectedItem); // Function to determine the category of the selected item
+
+
+    let topItem = null;
+    let bottomItem = null;
+    let accessoryItem = null;
+    let jewelryItem = null;
+    
+    // Logic to randomly select items from other categories
+    if(category === 'tops') {
+      bottomItem = getRandomItem('pants', 'skirts');
+      accessoryItem = getRandomItem('accessories');
+      jewelryItem = getRandomItem('jewelry');
+      topItem = selectedItem;
+    }
+    else if(category === 'dresses') {
+      accessoryItem = getRandomItem('accessories');
+      jewelryItem = getRandomItem('jewelry');
+      topItem = selectedItem;
+    }
+    else if(category === 'pants' || category === 'skirts') {
+      topItem = getRandomItem('tops');
+      accessoryItem = getRandomItem('accessories');
+      jewelryItem = getRandomItem('jewelry');
+      bottomItem = selectedItem;
+    }
+
+    // Ensure the selected item is part of the outfit
+    const outfit = {
+        top: topItem,
+        accessory: accessoryItem,
+        jewelry: jewelryItem,
+        // idk why but do NOT erase the 3 dots in front of the next code line
+        // it does not work without them
+        ...(category !== 'dresses' && { bottom: bottomItem }),
+    };
+
+    // Display the generated outfit to the user
+    console.log(outfit);
+};
+
+const getCategory = (selectedItem: ImageItem): string => {
+  return selectedItem.id;
+};
+
+let categoryIndex = 0;
+
+const getRandomItem = (...categories: string[]): ImageItem => {
+  const selectedCategory = categories[categoryIndex];
+  categoryIndex = (categoryIndex + 1) % categories.length; // Cycle through categories
+  const selectedItems = DATA.find(item => item.id === selectedCategory)?.images;
+  const randomItem = selectedItems ? selectedItems[Math.floor(Math.random() * selectedItems.length)] : { src: null, tag: '', id: selectedCategory };
+  return randomItem as ImageItem;
+};
+
+
+  const renderItem = ({ item }: { item: Item }) => {
+    return (
+      <View style={styles.item}>
+        <Text style={styles.title}>{item.title}</Text>
+        <FlatList
+          data={item.images?.slice(0, 3) as ImageItem[]}
+          renderItem={renderImageItem}
+          keyExtractor={(image, index) => index.toString()}
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.imageContainer}
+        />
+      </View>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -101,18 +178,6 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: StatusBar.currentHeight || 0,
   },
-  title: {
-    fontSize: 16, // Adjusted font size to make titles smaller
-    alignSelf: 'flex-start',
-  },
-  image: {
-    flex: 1, // Keeps the image flexible
-    width: null, // Ensures width is dynamically adjusted
-    height: '100%', // Increase height to fill the container
-    resizeMode: 'contain', // Ensures the image fits within the view without stretching
-    marginHorizontal: 5, // Keeps a small horizontal margin
-    marginVertical: 2, // Reduces top and bottom margins to increase image size
-  },
   item: {
     backgroundColor: '#FF5C5C',
     padding: 20,
@@ -123,11 +188,18 @@ const styles = StyleSheet.create({
     alignItems: 'stretch',
     height: 200, // Keeps the container's height fixed
   },
+  title: {
+    fontSize: 16, // Adjusted font size to make titles smaller
+    alignSelf: 'flex-start',
+  },
   imageContainer: {
-    flex: 1, // Ensures the container takes up the full height of its parent
-    flexDirection: 'row', // Keeps images side by side
     justifyContent: 'space-around', // Distributes space evenly around the images
     alignItems: 'center', // Centers images vertically
-    marginTop: 10,
+  },
+  image: {
+    width: Dimensions.get('window').width / 4, // Adjusted from /3 to /4 to fit more images
+    height: 200, // Increased the height value to make the images bigger
+    resizeMode: 'contain',
+    marginHorizontal: 2,
   },
 });
