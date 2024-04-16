@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     marginTop: StatusBar.currentHeight || 0,
   },
   item: {
-    backgroundColor: '#FF5C5C',
+    backgroundColor: '#FFC7CC',
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
