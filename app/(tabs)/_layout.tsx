@@ -1,6 +1,7 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
 import { Pressable, StyleSheet } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
@@ -40,7 +41,7 @@ export default function TabLayout() {
         name="Wardrobe"
         options={{
           title: 'Wardrobe',
-          tabBarIcon: ({ color }) => <TabBarIcon name='anchor' color={color} />,
+          tabBarIcon: ({ color }) => <AntDesign name='skin' color={color} size={19} />,
           headerRight: () => (
             <Link href="/modal" asChild>
               <Pressable>
