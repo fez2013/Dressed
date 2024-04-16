@@ -9,7 +9,7 @@ export default function ModalScreen() {
     <Theme name="light">
       <ScrollView>
         <YStack flex={1} alignItems="center" justifyContent="center" backgroundColor='#FFC7CC'>
-          <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
+          <StatusBar hidden={Platform.OS === 'ios' ? false : true} />
           <Separator />
           {/* <EditScreenInfo path="app/modal.tsx" /> */}
           <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 20 }}>App Overview</Text>
