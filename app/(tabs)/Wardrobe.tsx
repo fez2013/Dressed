@@ -1,5 +1,5 @@
 import { YStack, H2, Separator, Theme } from 'tamagui';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   View,
@@ -9,7 +9,8 @@ import {
   StatusBar,
   Image,
   Dimensions,
-  TouchableOpacity
+  TouchableOpacity,
+  Modal
 } from 'react-native';
 
 interface Item {
@@ -22,6 +23,13 @@ interface ImageItem {
   src: any; // Consider using a more specific type for src, like ImageSourcePropType from 'react-native'
   tag?: string;
   id: string; // Add the id property to ImageItem
+}
+
+interface Outfit {
+  top?: ImageItem | null;
+  bottom?: ImageItem | null;
+  accessory?: ImageItem | null;
+  jewelry?: ImageItem | null;
 }
 
 export default function TabWardrobeScreen() {
@@ -83,6 +91,9 @@ export default function TabWardrobeScreen() {
     }
   ];
 
+  const [outfit, setOutfit] = useState<Outfit | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
   const renderImageItem = ({ item }: { item: ImageItem }) => (
     <TouchableOpacity onPress={() => generateOutfit(item)}>
       <Image source={item.src} style={styles.image} />
@@ -91,7 +102,6 @@ export default function TabWardrobeScreen() {
 
   const generateOutfit = (selectedItem: ImageItem) => {
     const category = getCategory(selectedItem); // Function to determine the category of the selected item
-
 
     let topItem = null;
     let bottomItem = null;
@@ -118,33 +128,61 @@ export default function TabWardrobeScreen() {
     }
 
     // Ensure the selected item is part of the outfit
-    const outfit = {
+    const outfitData = {
         top: topItem,
         accessory: accessoryItem,
         jewelry: jewelryItem,
-        // idk why but do NOT erase the 3 dots in front of the next code line
-        // it does not work without them
         ...(category !== 'dresses' && { bottom: bottomItem }),
     };
 
-    // Display the generated outfit to the user
-    console.log(outfit);
-};
+    setOutfit(outfitData);
+    setModalVisible(true); // Show the modal
+  };
 
-const getCategory = (selectedItem: ImageItem): string => {
-  return selectedItem.id;
-};
+  const getCategory = (selectedItem: ImageItem): string => {
+    return selectedItem.id;
+  };
 
-let categoryIndex = 0;
+  let categoryIndex = 0;
 
-const getRandomItem = (...categories: string[]): ImageItem => {
-  const selectedCategory = categories[categoryIndex];
-  categoryIndex = (categoryIndex + 1) % categories.length; // Cycle through categories
-  const selectedItems = DATA.find(item => item.id === selectedCategory)?.images;
-  const randomItem = selectedItems ? selectedItems[Math.floor(Math.random() * selectedItems.length)] : { src: null, tag: '', id: selectedCategory };
-  return randomItem as ImageItem;
-};
+  const getRandomItem = (...categories: string[]): ImageItem => {
+    const selectedCategory = categories[categoryIndex];
+    categoryIndex = (categoryIndex + 1) % categories.length; // Cycle through categories
+    const selectedItems = DATA.find(item => item.id === selectedCategory)?.images;
+    const randomItem = selectedItems ? selectedItems[Math.floor(Math.random() * selectedItems.length)] : { src: null, tag: '', id: selectedCategory };
+    console.log(`Selected item for ${selectedCategory}:`, randomItem);
+    return randomItem as ImageItem;
+  };
 
+  const renderOutfitModal = () => (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => {
+        setModalVisible(!modalVisible);
+      }}
+    >
+      <View style={styles.centeredView}>
+        <View style={styles.modalView}>
+          {outfit && (Object.keys(outfit) as (keyof Outfit)[]).map((key) => {
+            const item = outfit[key];
+            if (!item || !item.src) {
+              console.log(`Missing image for ${key}`);
+              return null;
+            }
+            return <Image key={key} source={item.src} style={styles.modalImage} />;
+          })}
+          <TouchableOpacity
+            style={[styles.button, styles.buttonClose]}
+            onPress={() => setModalVisible(!modalVisible)}
+          >
+            <Text style={styles.textStyle}>Close</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
 
   const renderItem = ({ item }: { item: Item }) => {
     return (
@@ -169,6 +207,7 @@ const getRandomItem = (...categories: string[]): ImageItem => {
         renderItem={renderItem}
         keyExtractor={item => item.id}
       />
+      {renderOutfitModal()}
     </SafeAreaView>
   );
 }
@@ -201,5 +240,48 @@ const styles = StyleSheet.create({
     height: 200, // Increased the height value to make the images bigger
     resizeMode: 'contain',
     marginHorizontal: 2,
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 15,
+    resizeMode: 'contain',
   },
 });
